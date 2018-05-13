@@ -1,0 +1,211 @@
+\documentclass[a4paper,14pt]{extreport}
+%\usepackage{../Templates/ch_dstu95}
+\usepackage{../kvTeX_Data/kvTemplates/kvDSTU95}
+
+\usepackage{xifthen}
+\newcommand{\ifeqelse}[4]{\ifthenelse{\equal{#1}{#2}}{#3}{#4}}
+
+\newcommand{\n}{n}		% номер ряду колектора
+\newcommand{\MYi}{i}	% номер колектора
+\newcommand{\MYj}{j}	% номер ділянки геліосистеми
+\newcommand{\MYc}{c}	% питома теплоэмність
+\newcommand{\MYl}{l}	% номер контуру теплообмінника
+\newcommand{\MYk}{k}	% номер рівня заповнення в баку-акамуляторі
+\newcommand{\MYf}{f}	% номер ділянки контуру бака-акамулятора
+\newcommand{\MYt}{t}	% температура
+\newcommand{\g}{G}		% витрата
+\newcommand{\MYu}{K}	% коефіцієнт теплопередачі
+\newcommand{\F}{F}		% площа
+\newcommand{\s}{S}		% 
+\newcommand{\h}{H}		% гідравлічний опір
+\newcommand{\MYrho}{\rho}	% густина теплоносія
+\newcommand{\myH}{I}	% потік сонячної радіації в напрямку нормалі до площини колекторів.
+
+\newcommand{\MYni}{{\n\,\MYi}}
+
+\newcommand{\ci}{\MYc_\MYi} % пит. теплоємн. i-го колектора
+\newcommand{\cj}{\MYc_\MYj} % пит. теплоємн.: j=1 - після колекторів до теплообмінника; j=2 - після насосу до колекторів; j=3 - в контурі колекторів; j=4 - в баці-акамуляторі.
+\newcommand{\cl}{\MYc_\MYl} % пит. теплоємн. в теплообміннику: l=1 - в контурі геліоколектора; l=2 - в контурі бака-акамулятора.
+\newcommand{\cf}{\MYc_\MYf} % пит. теплоємн.  в контуры бака-акамулятора: f=1 - від теплообмінника до бака-акамулятора; f=2 - від насосу до теплообмінника.
+\newcommand{\cv}{\MYc_{\textrm{в}}} % пи. теплоємн. води.
+\newcommand{\ck}{\MYc_{\MYk}} % пит. теплоємн. . на кожному рівні заповненого теплоносієм бака-акамулятора.
+
+\newcommand{\gI}{\g_I} % сумарна витрата теплоносія в геліоконтурі.
+\newcommand{\gII}{\g_{II}} % сумарна витрата теплоносія в контурі БА.
+\newcommand{\gp}{\g_{\textrm{р}}} % сумарна витрата теплоносія у споживача
+\newcommand{\gx}{\g_{\textrm{х}}} % сумарна витрата теплоносія на вході в БА
+\newcommand{\gni}{\g_\MYni} % витрата теплоносія через i-тий контур n-го ряду
+\newcommand{\gop}{\g_{\mbox{оп}}} % задаваєме значення оптимальної витрати через площину колектора
+
+\newcommand{\MYtau}{\tau}	% час.
+\newcommand{\dtDIVdtau}[1]{\cfrac{d\MYt_{#1}}{d\MYtau}}
+\newcommand{\tprimeprime}{\MYt^{\prime\prime}} % температура нагрітого теплоносія на виході з i-го колектора n-го ряду.
+\newcommand{\tprime}{\MYt^\prime} % температура охолодженого теплоносія на вході в i-ий колектор n-го ряду.
+
+\newcommand{\uj}{\MYu_\MYj} % середній коеф. тепл.: j=1 - після колекторів до теплообмінника; j=2 - після насосу до колекторів; j=3 - в контурі колекторів; j=4 - в баці-акамуляторі.
+\newcommand{\uf}{\MYu_\MYf} % середній коеф. тепл. в контуры бака-акамулятора: f=1 - від теплообмінника до бака-акамулятора; f=2 - від насосу до теплообмінника.
+\newcommand{\ul}{\MYu_\MYl} % середній коеф. тепл. в теплообміннику: l=1 - в контурі геліоколектора; l=2 - в контурі бака-акамулятора.
+\newcommand{\uk}{\MYu_{\MYk}} % середній коеф. тепл. на кожному рівні заповненого теплоносієм бака-акамулятора.
+\newcommand{\uni}{\MYu_\MYni} % середній коеф. тепл. i-го колектора
+
+\newcommand{\tsni}{\MYt_{s\,\MYni}} % середня температура
+\newcommand{\MYto}{\MYt_{\mbox{о}}} % температура оточуючого середовища
+\newcommand{\ti}{\MYt_\MYi} % середня температура i-го колектора
+\newcommand{\tj}{\MYt_\MYj} % середня температура: j=1 - після колекторів до теплообмінника; j=2 - після насосу до колекторів; j=3 - в контурі колекторів; j=4 - в баці-акамуляторі.
+\newcommand{\tl}{\MYt_\MYl} % середня температура в теплообміннику: l=1 - в контурі геліоколектора; l=2 - в контурі бака-акамулятора.
+\newcommand{\tf}{\MYt_\MYf} % середня температура в контуры бака-акамулятора: f=1 - від теплообмінника до бака-акамулятора; f=2 - від насосу до теплообмінника.
+\newcommand{\tk}{\MYt_{\MYk}} % середня температура на кожному рівні заповненого теплоносієм бака-акамулятора.
+\newcommand{\tp}{\MYt_{\textrm{р}}}	% кінцева температура до споживача від БА.
+\newcommand{\tx}{\MYt_{\textrm{х}}}	% температура на вході в БА
+\newcommand{\tnl}{\MYt_{\n\,\MYl}}	%
+
+\newcommand{\tkMinusOne}{\MYt_{\MYk-1}}
+
+\newcommand{\kb}{\MYk_{\textrm{Б}}}	% коефіцієнт теплопередачі теплообмінника.
+\newcommand{\Fb}{\F_{\textrm{Б}}}	% площа теплообмінника.
+
+\newcommand{\sI}{\s_I} % сумарний гідравлічний опір геліоконтуру і з'єднувальних трубопроводів
+\newcommand{\hI}{\h_I}	% напір, який розвивається циркуляційним насосом
+
+\newcommand{\Nmax}{N_{\mathrm{max}}} % Максимальне число рядів колекторів у батареї.
+
+% -----------------------------------------------------------
+\newcounter{R}
+\setcounter{R}{1}
+
+\newcommand{\GK}{\textrm{ГК}}		% геліоколектори
+\newcommand{\BA}{\textrm{БА}}		% бак-акумулятор
+
+\newcommand{\heated}{\textrm{1}}	% нагріта
+\newcommand{\chilled}{\textrm{2}}	% охолоджена
+\newcommand{\env}{\textrm{н}}		% навколишня
+
+\newcommand{\SGK}{\textrm{I}}		% контур геліосистеми (СГК)
+\newcommand{\SBA}{\textrm{II}}		% контур геліосистеми (СБА)
+
+\newcommand{\TO}{\textrm{ТО}}	% теплообмінник
+\newcommand{\TOsgk}{\SGK_{\TO}}	% теплообмінник в контурі СГК
+\newcommand{\TOba}{\SBA_{\TO}}	% теплообмінник в контурі СБА
+
+\newcommand{\SGKone}{\SGK_{\heated}}	% в контурі СГК після ГК перед ТО
+\newcommand{\SGKtwo}{\SGK_{\chilled}}	% в контурі СГК після ТО перед ГК
+
+\newcommand{\SBAone}{\SBA_{\heated}}	% в контурі СБА після ТО перед БА
+\newcommand{\SBAtwo}{\SBA_{\chilled}}	% в контурі СБА після БА перед ТО
+
+% навколишня температура
+\renewcommand{\MYto}{\ifeqelse{\value R}{1}{\MYt_{\env}}{\MYto}}
+
+% c ГК
+\newcommand{\cGK}{\ifeqelse{\value R}{1}{\MYc_{\GK}}{\cj}}
+% dt ГК
+\newcommand{\dtDIVdtauGK}{\ifeqelse{\value R}{1}{\dtDIVdtau{\GK}}{\dtDIVdtau{\MYj}}}
+% K ГК
+\newcommand{\uGK}{\ifeqelse{\value R}{1}{\MYu_{\GK}}{\uj}}
+% t ГК
+\newcommand{\tGK}{\ifeqelse{\value R}{1}{\MYt_{\GK}}{\tj}}
+
+% t в СГК
+\newcommand{\tTOsgk}{\ifeqelse{\value R}{1}{\MYt_{\TOsgk}}{\tl}}
+% t в БА
+\newcommand{\tTOba}{\ifeqelse{\value R}{1}{\MYt_{\TOba}}{\tl}}
+% c в СГК
+\newcommand{\cTOsgk}{\ifeqelse{\value R}{1}{\MYc_{\TOsgk}}{\cl}}
+% c в БА
+\newcommand{\cTOba}{\ifeqelse{\value R}{1}{\MYc_{\TOba}}{\cl}}
+% dt в СГК
+\newcommand{\dtDIVdtauTOsgk}{\ifeqelse{\value R}{1}{\dtDIVdtau{\TOsgk}}{\dtDIVdtau{\MYl}}}
+% dt в БА
+\newcommand{\dtDIVdtauTOba}{\ifeqelse{\value R}{1}{\dtDIVdtau{\TOba}}{\dtDIVdtau{\MYl}}}
+% K в СГК
+\newcommand{\uTOsgk}{\ifeqelse{\value R}{1}{\MYu_{\TOsgk}}{\ul}}
+% K в БА
+\newcommand{\uTOba}{\ifeqelse{\value R}{1}{\MYu_{\TOba}}{\ul}}
+
+% c в СГК після ГК перед ТО
+\newcommand{\cSGKone}{\ifeqelse{\value R}{1}{\MYc_{\SGKone}}{\cj}}
+% c в СГК після ТО перед ГК
+\newcommand{\cSGKtwo}{\ifeqelse{\value R}{1}{\MYc_{\SGKtwo}}{\cj}}
+% dt в СГК після ГК перед ТО
+\newcommand{\dtDIVdtauSGKone}{\ifeqelse{\value R}{1}{\dtDIVdtau{\SGKone}}{\dtDIVdtau{\MYj}}}
+% dt в СГК після ТО перед ГК
+\newcommand{\dtDIVdtauSGKtwo}{\ifeqelse{\value R}{1}{\dtDIVdtau{\SGKtwo}}{\dtDIVdtau{\MYj}}}
+% K в СГК після ГК перед ТО
+\newcommand{\uSGKone}{\ifeqelse{\value R}{1}{\MYu_{\SGKone}}{\uj}}
+% K в СГК після ТО перед ГК
+\newcommand{\uSGKtwo}{\ifeqelse{\value R}{1}{\MYu_{\SGKtwo}}{\uj}}
+% t в СГК після ГК перед ТО
+\newcommand{\tSGKone}{\ifeqelse{\value R}{1}{\MYt_{\SGKone}}{\tj}}
+% t в СГК після ТО перед ГК
+\newcommand{\tSGKtwo}{\ifeqelse{\value R}{1}{\MYt_{\SGKtwo}}{\tj}}
+
+% c в СБА після ТО перед БА
+\newcommand{\cSBAone}{\ifeqelse{\value R}{1}{\MYc_{\SBAone}}{\cf}}
+% c в СБА після БА перед ТО
+\newcommand{\cSBAtwo}{\ifeqelse{\value R}{1}{\MYc_{\SBAtwo}}{\cf}}
+% dt в СБА після ТО перед БА
+\newcommand{\dtDIVdtauSBAone}{\ifeqelse{\value R}{1}{\dtDIVdtau{\SBAone}}{\dtDIVdtau{\MYf}}}
+% dt в СБА після БА перед ТО
+\newcommand{\dtDIVdtauSBAtwo}{\ifeqelse{\value R}{1}{\dtDIVdtau{\SBAtwo}}{\dtDIVdtau{\MYf}}}
+% K в СБА після ТО перед БА
+\newcommand{\uSBAone}{\ifeqelse{\value R}{1}{\MYu_{\SBAone}}{\uf}}
+% K в СБА після БА перед ТО
+\newcommand{\uSBAtwo}{\ifeqelse{\value R}{1}{\MYu_{\SBAtwo}}{\uf}}
+% t в СБА після ТО перед БА
+\newcommand{\tSBAone}{\ifeqelse{\value R}{1}{\MYt_{\SBAone}}{\tf}}
+% t в СБА після БА перед ТО
+\newcommand{\tSBAtwo}{\ifeqelse{\value R}{1}{\MYt_{\SBAtwo}}{\tf}}
+
+\newcommand{\condGK}{\quad\ifeqelse{\value R}{1}{\MYi=m;}{\MYi=m,\ \MYj=3,\ \MYl=1;}}
+\newcommand{\condSGKtwo}{\quad\ifeqelse{\value R}{1}{}{\MYl=1,\ \MYj=2;}}
+\newcommand{\condSBAtwo}{\quad\ifeqelse{\value R}{1}{\MYk=m_2;}{\MYk=m_2,\ \MYf=2;}}
+\newcommand{\condTOSBAtwo}{\quad\ifeqelse{\value R}{1}{}{\MYl=2,\ \MYf=2,\ \MYj=2;}}
+\newcommand{\condTOSBAone}{\quad\ifeqelse{\value R}{1}{\MYk=1;}{\MYf=1,\ \MYl=2,\ \MYk=1;}}
+\newcommand{\condSBAtwoK}{\quad\ifeqelse{\value R}{1}{\MYk=1;}{\MYf=2,\ \MYk=1;}}
+
+\begin{document}
+	Гідравлічний режим в елементах геліосистеми  є стійким турбулентним.
+	\[
+	\left\{
+	\begin{array}{l}
+		\sum\limits_{\n=1}^{N_\MYi}\left[\MYc_\MYni\dtDIVdtau{\MYni} + \gni\cdot\cv\left( \tprimeprime_\MYni - \tprime_\MYni \right) + \uni\,(\tsni - \MYto)  \right] = \sum\limits_{\n=1}^{N_\MYi}\myH_\MYni; \MYi=1,\,\dots,\,m;\\
+		\cGK\dtDIVdtauGK + \uGK\,(\tGK-\MYto)+\gI\cv\,(\tGK-\tTOsgk) = \gI\cv\,(\ti-\tGK);\condGK\\
+		\cTOsgk\dtDIVdtauTOsgk=\gI\left( 1-e^{- \cfrac{\kb\Fb}{\gp}} \right)\negthickspace;\\
+		\cSGKtwo\dtDIVdtauSGKtwo + \uSGKtwo\,(\tTOsgk-\MYto)=\gI\cv\,(\tTOsgk-\tSGKtwo);\condSGKtwo
+		\\
+		\cSBAtwo\dtDIVdtauSBAtwo+\uSBAtwo\,(\tSBAtwo-\MYto)=\gII\cv\,(\tk-\tSBAtwo);\condSBAtwo\\
+		\cTOba\dtDIVdtauTOba+\uTOba\,(\tTOba-\MYto)+\gII\cv\,(\tTOba-\tSBAtwo)=\gI\cv\,(\tTOba-\tSGKtwo);\condTOSBAtwo\\
+		\cSBAone\dtDIVdtauSBAone+\uSBAone\,(\tSBAone-\MYto)+\gII\cv\,(\tSBAone-\tk)=\gII\cv\,(\tTOba-\tSBAone);\condTOSBAone\\
+		\ck\dtDIVdtau{\MYk}+\uk\,(\tk-\MYto)+\gp\cv\,(\tk-\tp)=\gII\cv\,(\tSBAtwo-\tk);\condSBAtwoK\\
+		\ck\dtDIVdtau{\MYk}+\uk\,(\tk-\MYto)=\gII\cv\,(\tkMinusOne-\tk);\quad\MYk=2,\ 3,\,\dots ,\,m_2=1;\\
+		\ck\dtDIVdtau{\MYk}+\uk\,(\tk-\MYto)=\gII\cv\,(\tkMinusOne-\tk)+\gx\cv\,(\tx-\tk);\,\MYk=m_2;\\
+		\sI\,\gI^2 = \hI.%;\\
+		%\sI\,\gI^2 = 9,8\sum \h_\MYi\,(\MYrho_{\MYi+1}-\MYrho_\MYi);
+	\end{array}
+	\right.
+	\]
+	де $\gni$ "--- витрата теплоносія через $\MYi$-й колектор $\n$-го ряду; $\gI=\sum\limits_{\n=1}^{\Nmax}\g_n$ "--- сумарна витрата теплоносія в геліоконтурі; $\gp$ "--- витрата теплоносія у споживача; $\gx$ - витрата теплоносія на вході в БА; $\ti,\ \tk,\ \tl, \tf, \tj$ "--- середні температури у відповідних областях; $\uni,\ \uj,\ \uk,\ \ul, \uf$ "--- коефіцієнти теплопередачі окремих областей; $\ci,\ \cj,\ \cf,\ \cl,\ \ck$ "--- питома теплоємність окремих елементів; $\MYto$ "--- температура оточуючого середовища; $\kb,\ \Fb$ "--- характеристики теплообмінника.
+	
+	Початковими умовами для розглядаємої задачі служать:
+	\begin{eqnarray}
+		\left. \tnl \right|_{\MYtau=0} = \left. \tj \right|_{\MYtau=0} = \left. \ti \right|_{\MYtau=0} = \left. \tf \right|_{\MYtau=0} = \left. \tl \right|_{\MYtau=0}= \left. \tk \right|_{\MYtau=0}=\MYto.
+	\end{eqnarray}
+	
+	Початкові умови для $\MYrho$:
+	\begin{equation}
+		\left. \MYrho_1 \right|_{\MYtau=0} = \left. \MYrho_2 \right|_{\MYtau=0}=\dots = \left. \MYrho_i \right|_{\MYtau=0} = \dots \MYrho(\MYto),
+	\end{equation}
+	де $\sI$ "--- загальний гідравлічний опір геліоконтуру і з'єднувальних трубопроводів; $\h_\MYi$ "--- напір, який розвивається в $\MYi$-й області; $\MYrho_{i+1},\ \MYrho_\MYi$ "--- поточна щільність теплоносія в $i$-й і суміжній з нею областях в даний момент часу.
+	
+	Для механічної циркуляції:
+	\begin{equation}
+		\gI = \gop \Nmax,
+	\end{equation}
+	де $\gop$ "--- задане значення оптимальної витрати теплоносія через площину колектору; $N_{\mbox{max}}$ "--- максимальне число рядів колекторів у батареї.
+	
+	У випадку систем із природньою циркуляцією щільність теплоносія є функцією його температури і систему рішають числовим інтегруванням із кроком по часу, яке визначається співвідношенням:
+	\begin{eqnarray}
+		\Delta\MYtau=\frac{V}{\gop},
+	\end{eqnarray}
+	де $V$ "--- об'єм теплоносія в системі.
+\end{document}
